@@ -58,7 +58,10 @@ class TestLogic(TestCase):
         self.note_form_data["slug"] = self.note.slug
         response = self.author_client.post(url, data=self.note_form_data)
         self.assertFormError(
-            response, form="form", field="slug", errors=(self.note.slug + WARNING)
+            response,
+            form="form",
+            field="slug",
+            errors=(self.note.slug + WARNING)
         )
         self.assertEqual(Note.objects.count(), 1)
 

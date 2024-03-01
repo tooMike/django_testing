@@ -34,7 +34,7 @@ class TestAddForm(TestCase):
 
     def test_pages_contains_form(self):
         """
-        Проверяем отображение формы 
+        Проверяем отображение формы
         на странице добавления и изменения заметки
         """
         urls = (("notes:edit", (self.note.slug,)), ("notes:add", None))
