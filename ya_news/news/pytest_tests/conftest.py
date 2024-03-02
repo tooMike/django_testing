@@ -1,12 +1,18 @@
-import pytest
-
-from django.conf import settings
-from django.test.client import Client
-from django.utils import timezone
-
 from datetime import datetime, timedelta
 
+import pytest
+from django.conf import settings
+from django.test.client import Client
+from django.urls import reverse
+from django.utils import timezone
+
+from news.forms import BAD_WORDS
 from news.models import Comment, News
+
+
+@pytest.fixture(autouse=True)
+def enable_db_access(db):
+    pass
 
 
 @pytest.fixture
@@ -35,11 +41,10 @@ def not_author_client(not_author):
 
 @pytest.fixture
 def news():
-    news = News.objects.create(
+    return News.objects.create(
         title="Заголовок",
         text="Текст",
     )
-    return news
 
 
 @pytest.fixture
@@ -48,7 +53,7 @@ def news_id_for_args(news):
 
 
 @pytest.fixture
-def create_11_news():
+def create_several_news():
     today = datetime.today()
     all_news = [
         News(
@@ -65,12 +70,11 @@ def create_11_news():
 
 @pytest.fixture
 def comment(news, author):
-    comment = Comment.objects.create(
+    return Comment.objects.create(
         news=news,
         author=author,
         text="Текст комментария",
     )
-    return comment
 
 
 @pytest.fixture
@@ -100,3 +104,43 @@ def create_10_comments(news, author):
         comment.created = now + timedelta(days=index)
         # И сохраняем эти изменения.
         comment.save()
+
+
+@pytest.fixture
+def bad_words_data():
+    return {"text": f"Какой-то текст, {BAD_WORDS[0]}, еще текст"}
+
+
+@pytest.fixture
+def home_url():
+    return reverse("news:home")
+
+
+@pytest.fixture
+def news_detail_url(news):
+    return reverse("news:detail", args=(news.id,))
+
+
+@pytest.fixture
+def comment_delete_url(comment):
+    return reverse("news:delete", args=(comment.id,))
+
+
+@pytest.fixture
+def comment_edit_url(comment):
+    return reverse("news:edit", args=(comment.id,))
+
+
+@pytest.fixture
+def login_url():
+    return reverse("users:login")
+
+
+@pytest.fixture
+def logout_url():
+    return reverse("users:logout")
+
+
+@pytest.fixture
+def signup_url():
+    return reverse("users:signup")

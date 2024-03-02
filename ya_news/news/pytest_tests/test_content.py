@@ -1,5 +1,4 @@
 import pytest
-
 from django.conf import settings
 from django.urls import reverse
 
@@ -7,50 +6,51 @@ from news.forms import CommentForm
 
 
 @pytest.mark.parametrize(
-    "user, result",
+    "client_, expected_result",
     (
         (pytest.lazy_fixture("client"), False),
         (pytest.lazy_fixture("not_author_client"), True),
     ),
 )
-def test_pages_contains_form(db, user, result, comment_id_for_args):
+def test_pages_contains_form(
+        client_,
+        expected_result,
+        news_detail_url,
+    ):
     """Проверяем доступность формы для добавления комментария"""
-    url = reverse("news:detail", args=comment_id_for_args)
-    response = user.get(url)
-    assert ("form" in response.context) is result
-    if "form" in response.context:
-        assert isinstance(response.context["form"], CommentForm)
+    response = client_.get(news_detail_url)
+    assert (
+        isinstance(response.context.get("form"), CommentForm)
+        is expected_result
+    )
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures("create_11_news")
-def test_news_count(client):
+@pytest.mark.usefixtures("create_several_news")
+def test_news_count(client, home_url):
     """Проверяем что на главной отображается 10 публикаций"""
-    url = reverse("news:home")
-    response = client.get(url)
+    response = client.get(home_url)
+    assert "object_list" in response.context
     object_list = response.context["object_list"]
     news_count = object_list.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures("create_11_news")
-def test_news_order(client):
+@pytest.mark.usefixtures("create_several_news")
+def test_news_order(client, home_url):
     """Проверяем, что новости отсортированы от новых к старым"""
-    url = reverse("news:home")
-    response = client.get(url)
+    response = client.get(home_url)
+    assert "object_list" in response.context
     object_list = response.context["object_list"]
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
 
 
-@pytest.mark.django_db
 @pytest.mark.usefixtures("create_10_comments")
-def test_comments_order(client, news_id_for_args):
+def test_comments_order(client, news_detail_url):
     """Проверяем, что комментарии отсортированы от старых к новым"""
-    url = reverse("news:detail", args=news_id_for_args)
-    response = client.get(url)
+    response = client.get(news_detail_url)
+    assert "news" in response.context
     news = response.context["news"]
     all_comments = news.comment_set.all()
     all_timestamps = [comment.created for comment in all_comments]
