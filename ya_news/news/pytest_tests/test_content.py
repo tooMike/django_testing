@@ -1,6 +1,5 @@
 import pytest
 from django.conf import settings
-from django.urls import reverse
 
 from news.forms import CommentForm
 
@@ -16,7 +15,7 @@ def test_pages_contains_form(
         client_,
         expected_result,
         news_detail_url,
-    ):
+):
     """Проверяем доступность формы для добавления комментария"""
     response = client_.get(news_detail_url)
     assert (
