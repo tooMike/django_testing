@@ -48,11 +48,6 @@ def news():
 
 
 @pytest.fixture
-def news_id_for_args(news):
-    return (news.id,)
-
-
-@pytest.fixture
 def create_several_news():
     today = datetime.today()
     all_news = [
@@ -75,11 +70,6 @@ def comment(news, author):
         author=author,
         text="Текст комментария",
     )
-
-
-@pytest.fixture
-def comment_id_for_args(comment):
-    return (comment.id,)
 
 
 @pytest.fixture

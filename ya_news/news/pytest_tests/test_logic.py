@@ -28,39 +28,35 @@ def test_user_cant_delete_comment_of_another_user(
 
 
 def test_author_can_edit_comment(
-        author,
         author_client,
         comment,
         comment_edit_url,
         comment_form_data,
-        news,
         news_detail_url,
 ):
     """Проверяем, что автор может изменять свои комментарии"""
     url_to_comments = news_detail_url + "#comments"
     response = author_client.post(comment_edit_url, comment_form_data)
     assertRedirects(response, url_to_comments)
-    comment.refresh_from_db()
-    assert comment.text == comment_form_data["text"]
-    assert comment.author == author
-    assert comment.news == news
+    comment_from_db = Comment.objects.get(id=comment.id)
+    assert comment_form_data["text"] == comment_from_db.text
+    assert comment.author == comment_from_db.author
+    assert comment.news == comment_from_db.news
 
 
 def test_user_cant_edit_comment_of_another_user(
-        author,
         not_author_client,
         comment,
         comment_edit_url,
         comment_form_data,
-        news,
 ):
     """Проверяем, что пользователь не может изменять чужие комментарии"""
     response = not_author_client.post(comment_edit_url, comment_form_data)
     assert response.status_code == HTTPStatus.NOT_FOUND
     comment_from_db = Comment.objects.get(id=comment.id)
     assert comment.text == comment_from_db.text
-    assert comment.author == author
-    assert comment.news == news
+    assert comment.author == comment_from_db.author
+    assert comment.news == comment_from_db.news
 
 
 def test_anonymous_user_cant_create_comment(

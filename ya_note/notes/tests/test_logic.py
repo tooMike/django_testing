@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import Client
 from pytils.translit import slugify
 
 from notes.models import Note
@@ -13,17 +12,6 @@ User = get_user_model()
 
 
 class TestLogic(BaseTest):
-
-    @classmethod
-    def setUpTestData(cls) -> None:
-        super().setUpTestData()
-        cls.note_form_data = {
-            "title": "Title1", "text": "Text1", "slug": "slug1"
-        }
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
 
     def check_note(self):
         """Проверяем соответсвуют ли параметры заметки ожидаемым значениям"""
